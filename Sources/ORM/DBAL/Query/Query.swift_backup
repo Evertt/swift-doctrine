@@ -1,0 +1,117 @@
+import Node
+import Doctrine
+
+public struct Query {
+    var table : String
+    var action: Action
+    var filter: Filter?
+    var sortBy: [Sort] = []
+    var limit : Limit?
+    var data  : Node?
+    
+    init(table: String, action: Action) {
+        self.table  = table
+        self.action = action
+    }
+}
+
+extension Query {
+    public enum Action {
+        case fetch
+        case insert
+        case update
+        case delete
+    }
+}
+
+extension Query {
+    public struct Limit: CustomStringConvertible {
+        public let count: Int
+        public let offset: Int
+        
+        public var description: String {
+            return "LIMIT \(count) OFFSET \(offset)"
+        }
+    }
+}
+
+extension Query {
+    public struct Sort: CustomStringConvertible {
+        public enum Direction: String {
+            case ascending = "ASC", descending = "DESC"
+        }
+        
+        public let field: String
+        public let direction: Direction
+        
+        public var description: String {
+            return "`\(field)` \(direction.rawValue)"
+        }
+    }
+}
+
+extension Query: CustomStringConvertible {
+    public var description: String {
+        switch action {
+        case .fetch:
+            var query = "SELECT * FROM `\(table)`"
+            
+            if let filter = filter {
+                query += " WHERE \(filter)"
+            }
+            
+            if !sortBy.isEmpty {
+                let sorts = sortBy.map{"\($0)"}.joined(separator: ", ")
+                query += " ORDER BY \(sorts)"
+            }
+            
+            if let limit = limit {
+                query += " \(limit)"
+            }
+            
+            return query
+            
+        case .insert:
+            guard let data = data else { return "" }
+            
+            let array = data.nodeArray ?? [Node(data.nodeObject!)]
+            
+            let keys = array[0].nodeObject!.keys
+                .map{"`\($0)`"}.joined(separator: ", ")
+            
+            let values = array.map{
+                $0.nodeObject!.values
+                    .map{$0.sql!}
+                    .joined(separator: ", ")
+            }.joined(separator: "), (")
+            
+            return "INSERT INTO `\(table)` (\(keys)) VALUES (\(values))"
+            
+        case .update:
+            let data = self.data!.nodeObject!
+                .map{"`\($0)` = \($1.sql!)"}
+                .joined(separator: ", ")
+            
+            var query = "UPDATE `\(table)` SET \(data)"
+            
+            if let filter = filter {
+                query += " WHERE \(filter)"
+            }
+            
+            return query
+            
+        case .delete:
+            var query = "DELETE FROM `\(table)`"
+            
+            if let filter = filter {
+                query += " WHERE \(filter)"
+            }
+            
+            if let limit = limit {
+                query += " \(limit)"
+            }
+            
+            return query
+        }
+    }
+}

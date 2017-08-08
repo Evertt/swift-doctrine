@@ -1,0 +1,68 @@
+import Node
+import Doctrine
+
+public class QueryBuilder {
+    public private(set) var query: Query
+    
+    public static func find(_ type: Entity.Type) -> QueryBuilder {
+        let query = Query(table: "\(type)", action: .fetch)
+        
+        return QueryBuilder(query: query)
+    }
+    
+    public static func create(_ type: Entity.Type) -> QueryBuilder {
+        let query = Query(table: "\(type)", action: .insert)
+        
+        return QueryBuilder(query: query)
+    }
+    
+    public static func update(_ type: Entity.Type) -> QueryBuilder {
+        let query = Query(table: "\(type)", action: .update)
+        
+        return QueryBuilder(query: query)
+    }
+    
+    public static func delete(_ type: Entity.Type) -> QueryBuilder {
+        let query = Query(table: "\(type)", action: .delete)
+        
+        return QueryBuilder(query: query)
+    }
+    
+    init(query: Query) {
+        self.query = query
+    }
+    
+    public func `where`(_ filter: Filter) -> QueryBuilder {
+        query.filter = query.filter?.and(filter) ?? filter
+        
+        return self
+    }
+    
+    public func and(_ filter: Filter) -> QueryBuilder {
+        return self.where(filter)
+    }
+    
+    public func or(_ filter: Filter) -> QueryBuilder {
+        query.filter = query.filter?.or(filter) ?? filter
+        
+        return self
+    }
+    
+    public func sort(by field: String, direction: Query.Sort.Direction = .ascending) -> QueryBuilder {
+        query.sortBy.append(Query.Sort(field: field, direction: direction))
+        
+        return self
+    }
+    
+    public func limit(_ count: Int, offset: Int = 0) -> QueryBuilder {
+        query.limit = Query.Limit(count: count, offset: offset)
+        
+        return self
+    }
+    
+    public func with(data: Node) -> QueryBuilder {
+        query.data = data
+        
+        return self
+    }
+}

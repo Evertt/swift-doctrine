@@ -1,0 +1,14 @@
+let database = MySQL.Database(
+    host     : "localhost",
+    user     : "root",
+    password : "",
+    database : "swift"
+)
+
+let entityManager = EntityManager(database: database)
+
+guard let user: User = try entityManager.find(id: 1) else {
+    throw Abort.notFound("User not found.")
+}
+
+let post: Post? = entityManager.
