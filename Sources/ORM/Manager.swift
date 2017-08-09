@@ -7,7 +7,7 @@ public class Manager {
     
     var originals = [EntityHash:[ID:Node]]()
     
-    public init(entityFactories: @escaping EntityFactory...) {
+    public init(entityFactories: EntityFactory...) {
         factories = entityFactories.map { ($0().hash, $0) }
         Manager.instances += factories.map { ($0.key, self) }
     }

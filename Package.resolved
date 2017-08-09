@@ -1,0 +1,70 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Bits",
+        "repositoryURL": "https://github.com/vapor/bits.git",
+        "state": {
+          "branch": null,
+          "revision": "c32f5e6ae2007dccd21a92b7e33eba842dd80d2f",
+          "version": "1.1.0"
+        }
+      },
+      {
+        "package": "Core",
+        "repositoryURL": "https://github.com/vapor/core.git",
+        "state": {
+          "branch": null,
+          "revision": "b8330808f4f6b69941961afe8ad6b015562f7b7c",
+          "version": "2.1.2"
+        }
+      },
+      {
+        "package": "Debugging",
+        "repositoryURL": "https://github.com/vapor/debugging.git",
+        "state": {
+          "branch": null,
+          "revision": "49c5e8f0a7cb5456a8f7c72c6cd9f1553e5885a8",
+          "version": "1.1.0"
+        }
+      },
+      {
+        "package": "ID",
+        "repositoryURL": "https://github.com/Evertt/swift-id.git",
+        "state": {
+          "branch": "4.0",
+          "revision": "21876954d3f3ba541971720cdf5870c27149a143",
+          "version": null
+        }
+      },
+      {
+        "package": "Node",
+        "repositoryURL": "https://github.com/vapor/node.git",
+        "state": {
+          "branch": "swift-4",
+          "revision": "3fe8ffbb2ab8ee9732e29ac56f2c960d3925f821",
+          "version": null
+        }
+      },
+      {
+        "package": "Reflection",
+        "repositoryURL": "https://github.com/Evertt/Reflection.git",
+        "state": {
+          "branch": "4.0",
+          "revision": "553f47a34b1e29423b4542483a1cba2d463e9077",
+          "version": null
+        }
+      },
+      {
+        "package": "ReflectionExtensions",
+        "repositoryURL": "https://github.com/Evertt/Reflection-Extensions.git",
+        "state": {
+          "branch": "4.0",
+          "revision": "1b37ed6596a22b4d1481c5ca1326ad9412e24043",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
