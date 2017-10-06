@@ -1,11 +1,11 @@
 struct EntityHash: Hashable {
     let hashValue: Int
     
-    init<E: Entity>(_ object: E) {
+    init<E: _Entity>(_ object: E) {
         hashValue = "\(type(of: object))".hashValue
     }
     
-    init<E: Entity>(_ type: E.Type) {
+    init<E: _Entity>(_ type: E.Type) {
         hashValue = "\(type)".hashValue
     }
     
@@ -14,12 +14,22 @@ struct EntityHash: Hashable {
     }
 }
 
-extension Entity {
+extension _Entity {
     static var hash: EntityHash {
         return EntityHash(Self.self)
     }
     
     var hash: EntityHash {
         return EntityHash(self)
+    }
+}
+
+extension Entity {
+    public var hashValue: Int {
+        return hash.hashValue
+    }
+    
+    public static func ==(lhs: Self, rhs: Self) -> Bool {
+        return lhs.hash == rhs.hash
     }
 }

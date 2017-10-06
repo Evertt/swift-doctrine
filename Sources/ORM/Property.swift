@@ -6,13 +6,31 @@ extension Property {
     }
 
     var isBelongsToRelation: Bool {
-        return isLazy && type is Entity.Type
+        return type is _Entity.Type
     }
 
     var isHasManyRelation: Bool {
-        return isLazy && type is EntityCollection.Type
+        return type is EntityCollection.Type
     }
 
+    var isNodeConvertible: Bool {
+        return type is NodeConvertible.Type
+    }
+}
+
+extension PropertyType {
+    var isRelationship: Bool {
+        return isBelongsToRelation || isHasManyRelation
+    }
+    
+    var isBelongsToRelation: Bool {
+        return type is _Entity.Type
+    }
+    
+    var isHasManyRelation: Bool {
+        return type is EntityCollection.Type
+    }
+    
     var isNodeConvertible: Bool {
         return type is NodeConvertible.Type
     }

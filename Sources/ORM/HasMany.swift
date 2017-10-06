@@ -1,94 +1,152 @@
 import Foundation
 
-public class HasMany<E: Entity>: MutableCollection {
-    let source: Entity
+public final class HasMany<T: Entity, E: Entity> {
+    let source: T
     
-    lazy var entities: [E] = {
+    lazy var entities: OrderedSet<E> = {
         let manager = self.source.manager
         
-        let foreignKey = TableColumn(self.key)
+        let filter = self.filter.and(self.key.id == self.source.id)
         
-        let filter = self.filter.and(foreignKey == self.source.id)
-        
-        return manager.find(where: filter)
+        return OrderedSet(manager.find(where: filter))
     }()
     
-    let key: String
+    let key: Key<E>
     let filter: Filter
     
-    public var startIndex : Int { return entities.startIndex }
-    public var endIndex   : Int { return entities.endIndex   }
-    
-    public init(source: Entity, key: String, filter: Filter = .all([]), entities: [E]? = nil) {
+    public init<S: Sequence>(source: T, key: Key<E>, filter: Filter = .all([]), entities: S? = nil) where S.Element == E {
         self.key    = key
         self.source = source
         self.filter = filter
         
         if let entities = entities {
-            self.entities = entities
+            self.entities = OrderedSet(entities)
         }
     }
     
-    public subscript(i: Int) -> E {
-        get { return entities[i]     }
-        set { entities[i] = newValue }
+    public func filter(where filter: Filter) -> HasMany<T,E> {
+        return HasMany(source: source, key: key, filter: self.filter.and(filter), entities: [E]?.none)
+    }
+}
+
+extension HasMany: Equatable {
+    public static func ==(lhs: HasMany<T,E>, rhs: HasMany<T,E>) -> Bool {
+        return lhs.entities == rhs.entities
+    }
+}
+
+extension HasMany: MutableCollection {
+    public typealias Index = OrderedSet<E>.Index
+    
+    public var startIndex: Index {
+        return entities.startIndex
     }
     
-    public func index(after i: Int) -> Int {
-        guard i != endIndex else {
-            fatalError("Cannot increment endIndex")
+    public var endIndex: Index {
+        return entities.endIndex
+    }
+    
+    public subscript(i: Index) -> E {
+        get {
+            return entities[i]
         }
         
-        return i + 1
+        set {
+            setForeignKey(on: newValue)
+            entities[i] = newValue
+        }
     }
     
-    public func filter(where filter: Filter) -> HasMany {
-        return HasMany(source: source, key: key, filter: self.filter.and(filter))
+    public func index(after i: Index) -> Index {
+        return entities.index(after: i)
     }
-    
-    public func append(_ entity: E) {
-        var entity = entity
-        try! ReflectionExtensions.set(source, key: "\(key).storage", for: &entity)
-        entities.append(entity)
-    }
-    
-    public func append<S: Sequence>(contentsOf sequence: S) where S.Iterator.Element == E {
-        sequence.forEach { entity in self.append(entity) }
-    }
-    
-    public static func +(left: HasMany<E>, right: E) -> HasMany<E> {
-        let result = HasMany(source: left.source, key: left.key, filter: left.filter, entities: left.entities)
-        result.append(right)
+}
+
+extension HasMany {
+    public static func +(left: HasMany<T,E>, right: E) -> HasMany<T,E> {
+        var result = HasMany(source: left.source, key: left.key, filter: left.filter, entities: left.entities)
+        result += right
         return result
     }
     
-    public static func +=(left: inout HasMany<E>, right: E) {
+    public static func +=(left: inout HasMany<T,E>, right: E) {
         left.append(right)
     }
     
-    public static func +<S: Sequence>(left: HasMany<E>, right: S) -> HasMany<E> where S.Iterator.Element == E {
-        let result = HasMany(source: left.source, key: left.key, filter: left.filter, entities: left.entities)
-        result.append(contentsOf: right)
+    public static func +<S: Sequence>(left: HasMany<T,E>, right: S) -> HasMany<T,E> where S.Iterator.Element == E {
+        var result = HasMany(source: left.source, key: left.key, filter: left.filter, entities: left.entities)
+        result += right
         return result
     }
     
-    public static func +=<S: Sequence>(left: inout HasMany<E>, right: S) where S.Iterator.Element == E {
-        left.append(contentsOf: right)
+    public static func +=<S: Sequence>(left: inout HasMany<T,E>, right: S) where S.Iterator.Element == E {
+        right.forEach { left.append($0) }
+    }
+    
+    public static func -(left: HasMany<T,E>, right: E) -> HasMany<T,E> {
+        var result = HasMany(source: left.source, key: left.key, filter: left.filter, entities: left.entities)
+        result -= right
+        return result
+    }
+    
+    public static func -=(left: inout HasMany<T,E>, right: E) {
+        left.remove(right)
+    }
+    
+    public static func -<S: Sequence>(left: HasMany<T,E>, right: S) -> HasMany<T,E> where S.Iterator.Element == E {
+        var result = HasMany(source: left.source, key: left.key, filter: left.filter, entities: left.entities)
+        result -= right
+        return result
+    }
+    
+    public static func -=<S: Sequence>(left: inout HasMany<T,E>, right: S) where S.Iterator.Element == E {
+        right.forEach { left.remove($0) }
     }
 }
 
-extension HasMany: NodeRepresentable {
-    public func makeNode(in context: Context?) throws -> Node {
-        return Node(entities.map{$0.id})
+extension HasMany {
+    public var isEmpty: Bool {
+        return entities.isEmpty
+    }
+    
+    public var count: Int {
+        return entities.count
+    }
+    
+    public func contains(_ member: E) -> Bool {
+        return entities.contains(member)
+    }
+    
+    public func append(_ newMember: E) {
+        setForeignKey(on: newMember)
+        entities.append(newMember)
+    }
+    
+    public func insert(_ newMember: E, at index: Index) {
+        setForeignKey(on: newMember)
+        entities.insert(newMember, at: index)
+    }
+    
+    func unsetForeignKey(on entity: E) {
+        var entity = entity
+        try! ReflectionExtensions.set(E??.some(.none) as Any, key: "\(key).storage", for: &entity)
+    }
+    
+    func setForeignKey(on entity: E) {
+        var entity = entity
+        try! ReflectionExtensions.set(source, key: "\(key).storage", for: &entity)
+    }
+    
+    public func remove(_ member: E) {
+        if let entity = get("\(key)", from: member)?.value as? T, entity === source {
+            unsetForeignKey(on: member)
+        }
+        
+        entities.remove(member)
     }
 }
 
-public protocol EntityCollection {
-    func map<T>(_ transform: (Entity) throws -> T) rethrows -> [T]
-}
+public protocol EntityCollection {}
 
-extension HasMany: EntityCollection {
-    public func map<T>(_ transform: (Entity) throws -> T) rethrows -> [T] {
-        return try map { (entity: E) -> T in try transform(entity) }
-    }
-}
+extension HasMany: EntityCollection {}
+

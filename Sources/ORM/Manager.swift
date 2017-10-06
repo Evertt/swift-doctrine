@@ -1,26 +1,45 @@
+import Foundation
+
+public protocol Connection {
+    func execute(query: Query) throws -> Data?
+}
+
 public class Manager {
-    public typealias EntityFactory = () -> Entity
-    
     static var instances = [EntityHash:Manager]()
     
-    let factories: [EntityHash:EntityFactory]
-    
+    let connection: Connection
     var originals = [EntityHash:[ID:Node]]()
+    var maps = [EntityHash:EntityMap]()
     
-    public init(entityFactories: EntityFactory...) {
-        factories = entityFactories.map { ($0().hash, $0) }
-        Manager.instances += factories.map { ($0.key, self) }
+    public init(connection: Connection, entities: [_Entity.Type]) {
+        self.connection = connection
+        Manager.instances += entities.map { ($0.hash, self) }
     }
     
     public func find<E: Entity>(where filter: Filter) -> [E] {
-        return []
+        return fetch(E.self, filter).map { decode($0) } ?? []
     }
     
     public func find<E: Entity>(where filter: Filter) -> E? {
-        return nil
+        return fetch(E.self, filter).map { decode($0) }
     }
     
     public func find<E: Entity>(id: ID) -> E? {
-        return nil
+        return fetch(E.self, E.id == id).map { decode($0) }
+    }
+    
+    private func fetch<E: Entity>(_ type: E.Type, _ filter: Filter) -> Data? {
+        var query = Query(table: E.type, action: .fetch)
+        query.filter = filter
+        
+        return try! connection.execute(query: query)
+    }
+    
+    private func decode<E: Entity>(_ data: Data) -> E {
+        return try! JSONDecoder().decode(E.self, from: data)
+    }
+    
+    private func decode<E: Entity>(_ data: Data) -> [E] {
+        return try! JSONDecoder().decode([E].self, from: data)
     }
 }

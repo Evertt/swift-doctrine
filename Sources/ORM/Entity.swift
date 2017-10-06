@@ -1,18 +1,27 @@
-public protocol Entity {
+public protocol _Entity: class, Codable {
     var id: ID { get }
+    static var id: Key<ID> { get }
 }
 
-extension Entity {
+public protocol Entity: _Entity, Hashable {}
+
+enum IDCodingKey: String, CodingKey {
+    case id
+}
+
+extension Key where V: _Entity {
+    var id: Key<ID> {
+        return Key<ID>("\(stringValue).id")
+    }
+}
+
+extension _Entity {
     static var manager: Manager {
         guard let manager = Manager.instances[hash] else {
             fatalError("\(Self.self) was not registered with Doctrine.")
         }
         
         return manager
-    }
-    
-    static var dummy: Self {
-        return manager.factories[hash]!() as! Self
     }
     
     static var type: String {
@@ -23,10 +32,6 @@ extension Entity {
         return Self.manager
     }
     
-    var dummy: Self {
-        return Self.dummy
-    }
-    
     var type: String {
         return Self.type
     }
@@ -34,79 +39,29 @@ extension Entity {
     var originalRow: Node? {
         return manager.originals[hash]?[id]
     }
-    
-    var key: Key {
-        return Key(for: self)
-    }
-}
-
-extension Entity {
-    static func initFromDB(row: [String:Node]) -> Self {
-        var dummy = self.dummy
-        
-        for (key, propertyType) in properties(Self.self) {
-            guard let value = row[key] else { continue }
-            
-            if let nodeInitializable = propertyType.type as? NodeInitializable.Type {
-                try! set(nodeInitializable.init(node: value), key: key, for: &dummy)
-            }
-        }
-        
-        return dummy
-    }
-    
-    func makeNodeForDB(dontAdd blacklist: inout Set<Key>) -> Node {
-        guard !blacklist.contains(key) else {
-            return id.makeNode()
-        }
-        
-        blacklist.insert(key)
-        
-        return Node(properties(self).map { key, property in (
-            key,
-            propertyToNode(
-                property: property,
-                dontAdd: &blacklist
-            )
-        )})
-    }
-    
-    func propertyToNode(property: Property, dontAdd blacklist: inout Set<Key>) -> Node {
-        if property.isRelationship {
-            if property.isInitialized {
-                return Node(property.value, dontAdd: &blacklist)
-            } else {
-                return Node(originalRow?[property.key])
-            }
-        }
-        
-        if property.isNodeConvertible {
-            return Node(property.value)
-        }
-        
-        return ""
-    }
 }
 
 extension Entity {
     public func belongsTo<E: Entity>(_ entityType: E.Type, mappedBy key: String? = nil) -> E? {
         let key = key ?? entityType.type.lowercasingFirstLetter()
         
-        guard let foreignKey = originalRow?[key] else {
+        let _foreignKey: Int? = originalRow?[key].map {_ in fatalError()}
+        
+        guard let foreignKey = _foreignKey else {
             return nil
         }
         
-        return manager.find(where: "id" == foreignKey)
+        return manager.find(where: E.id == ID(foreignKey))
     }
     
     public func belongsTo<E: Entity>(_ entityType: E.Type, mappedBy key: String? = nil) -> E {
         return belongsTo(entityType, mappedBy: key)!
     }
     
-    public func hasMany<E: Entity>(_ entityType: E.Type, reversedBy key: String? = nil) -> HasMany<E> {
+    public func hasMany<E: Entity>(_ entityType: E.Type, reversedBy key: String? = nil) -> HasMany<Self, E> {
         let key = key ?? type.lowercasingFirstLetter()
         
-        return HasMany<E>(source: self, key: key)
+        return HasMany<Self, E>(source: self, key: Key<E>(key), filter: .all([]), entities: [E]?.none)
     }
 }
 

@@ -13,11 +13,19 @@ extension Filter {
         return .not(left.or(right))
     }
     
-    public static func `where`(_ key: TableColumn, is comparison: Comparison, _ node: NodeRepresentable) -> Filter {
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, is comparison: Comparison, _ node: T) -> Filter where K.Wrapped: Comparable, K.Wrapped == T {
         return .compare(key, is: comparison, node)
     }
     
-    public static func `where`(_ key: TableColumn, in set: [NodeRepresentable]) -> Filter {
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, equalTo node: T) -> Filter where K.Wrapped: Equatable, K.Wrapped == T {
+        return .compare(key, is: .equalTo, node)
+    }
+    
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, notEqualTo node: T) -> Filter where K.Wrapped: Equatable, K.Wrapped == T {
+        return .compare(key, is: .notEqualTo, node)
+    }
+    
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, in set: [T]) -> Filter where K.Wrapped == T {
         return .subset(key, in: set)
     }
     
@@ -65,3 +73,4 @@ extension Filter {
         }
     }
 }
+
