@@ -11,7 +11,7 @@ extension Address: Equatable {
     }
 }
 
-class User: Entity {
+final class User: Entity {
     let id      : ID
     var name    : String
     var age     : Int = 0
@@ -26,7 +26,7 @@ class User: Entity {
     }
 }
 
-class Post: Entity {
+final class Post: Entity {
     let id     : ID
     var title  : String
     
@@ -43,52 +43,52 @@ class Post: Entity {
 }
 
 extension Key where V == User {
-    var id: Key<ID> {
-        return Key<ID>("\(stringValue).id")
+    var id: Key<E,ID> {
+        return Key<E,ID>("\(stringValue).id")
     }
 
-    var age: Key<Int> {
-        return Key<Int>("\(stringValue).age")
+    var age: Key<E,Int> {
+        return Key<E,Int>("\(stringValue).age")
     }
 
-    var name: Key<String> {
-        return Key<String>("\(stringValue).name")
+    var name: Key<E,String> {
+        return Key<E,String>("\(stringValue).name")
     }
 
-    var address: Key<Address> {
-        return Key<Address>("\(stringValue).address")
+    var address: Key<E,Address> {
+        return Key<E,Address>("\(stringValue).address")
     }
     
-    var posts: Key<HasMany<User,Post>> {
-        return Key<HasMany<User,Post>>("\(stringValue).posts")
+    var posts: RelationKey<User,Post> {
+        return RelationKey<User,Post>("\(stringValue).posts")
     }
 }
 
-extension Key where V == Address {
-    var street: Key<String> {
-        return Key<String>("\(stringValue).street")
+extension Key where V == Address? {
+    var street: Key<E,String> {
+        return Key<E,String>("\(stringValue).street")
     }
     
-    var number: Key<Int> {
-        return Key<Int>("\(stringValue).number")
+    var number: Key<E,Int> {
+        return Key<E,Int>("\(stringValue).number")
     }
 }
 
 extension Address {
-    static let street = Key<String>("street")
-    static let number = Key<Int>("number")
+    static let street = Key<Address,String>("street")
+    static let number = Key<Address,Int>("number")
 }
 
 extension User {
-    static let id      = Key<ID>("id")
-    static let age     = Key<Int>("age")
-    static let name    = Key<String>("name")
-    static let address = Key<Address>("address")
-    static let posts   = RelationKey<HasMany<User,Post>>("posts")
+    static let id      = Key<User,ID>("id")
+    static let age     = Key<User,Int>("age")
+    static let name    = Key<User,String>("name")
+    static let address = Key<User,Address?>("address")
+    static let posts   = RelationKey<User,Post>("posts")
 }
 
 extension Post {
-    static let id    = Key<ID>("id")
-    static let title = Key<String>("title")
-    static let user  = Key<User>("user")
+    static let id    = Key<Post,ID>("id")
+    static let title = Key<Post,String>("title")
+    static let user  = Key<Post,User>("user")
 }

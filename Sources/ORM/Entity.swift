@@ -1,17 +1,18 @@
 public protocol _Entity: class, Codable {
     var id: ID { get }
-    static var id: Key<ID> { get }
 }
 
-public protocol Entity: _Entity, Hashable {}
+public protocol Entity: _Entity, Hashable {
+    static var id: Key<Self,ID> { get }
+}
 
 enum IDCodingKey: String, CodingKey {
     case id
 }
 
 extension Key where V: _Entity {
-    var id: Key<ID> {
-        return Key<ID>("\(stringValue).id")
+    var id: Key<E,ID> {
+        return Key<E,ID>("\(stringValue).id")
     }
 }
 
@@ -24,7 +25,7 @@ extension _Entity {
         return manager
     }
     
-    static var type: String {
+    public static var type: String {
         return "\(Self.self)"
     }
     
@@ -61,7 +62,7 @@ extension Entity {
     public func hasMany<E: Entity>(_ entityType: E.Type, reversedBy key: String? = nil) -> HasMany<Self, E> {
         let key = key ?? type.lowercasingFirstLetter()
         
-        return HasMany<Self, E>(source: self, key: Key<E>(key), filter: .all([]), entities: [E]?.none)
+        return HasMany<Self, E>(source: self, key: Key<E,ID>("\(key).id"), filter: .all([]), entities: [E]?.none)
     }
 }
 

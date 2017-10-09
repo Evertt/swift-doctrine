@@ -1,8 +1,14 @@
 import Foundation
 
 public protocol Connection {
-    func execute(query: Query) throws -> Data?
+    func execute<E>(query: Query<E>) throws -> Data?
 }
+
+//public extension Query {
+//    static func fetch() -> Query<E> {
+//
+//    }
+//}
 
 public class Manager {
     static var instances = [EntityHash:Manager]()
@@ -16,11 +22,11 @@ public class Manager {
         Manager.instances += entities.map { ($0.hash, self) }
     }
     
-    public func find<E: Entity>(where filter: Filter) -> [E] {
+    public func find<E>(where filter: Filter<E>) -> [E] {
         return fetch(E.self, filter).map { decode($0) } ?? []
     }
     
-    public func find<E: Entity>(where filter: Filter) -> E? {
+    public func find<E>(where filter: Filter<E>) -> E? {
         return fetch(E.self, filter).map { decode($0) }
     }
     
@@ -28,8 +34,8 @@ public class Manager {
         return fetch(E.self, E.id == id).map { decode($0) }
     }
     
-    private func fetch<E: Entity>(_ type: E.Type, _ filter: Filter) -> Data? {
-        var query = Query(table: E.type, action: .fetch)
+    private func fetch<E>(_ type: E.Type, _ filter: Filter<E>) -> Data? {
+        var query = Query<E>(action: .fetch)
         query.filter = filter
         
         return try! connection.execute(query: query)

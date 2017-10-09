@@ -1,6 +1,4 @@
 extension Filter {
-    public static let noFilter: Filter = .all([])
-    
     public static func both(_ left: Filter, and right: Filter) -> Filter {
         return left.and(right)
     }
@@ -17,11 +15,19 @@ extension Filter {
         return .compare(key, is: comparison, node)
     }
     
-    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, equalTo node: T) -> Filter where K.Wrapped: Equatable, K.Wrapped == T {
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, equalTo node: T) -> Filter where T: Equatable, K.Wrapped == T {
         return .compare(key, is: .equalTo, node)
     }
     
-    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, notEqualTo node: T) -> Filter where K.Wrapped: Equatable, K.Wrapped == T {
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, equalTo node: T?) -> Filter where T: Equatable, K.Wrapped == T? {
+        return .compare(key, is: .equalTo, node)
+    }
+    
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, notEqualTo node: T) -> Filter where T: Equatable, K.Wrapped == T {
+        return .compare(key, is: .notEqualTo, node)
+    }
+    
+    public static func `where`<K: TypedCodingKey, T: Encodable>(_ key: K, notEqualTo node: T?) -> Filter where T: Equatable, K.Wrapped == T? {
         return .compare(key, is: .notEqualTo, node)
     }
     

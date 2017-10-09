@@ -6,15 +6,15 @@ public final class HasMany<T: Entity, E: Entity> {
     lazy var entities: OrderedSet<E> = {
         let manager = self.source.manager
         
-        let filter = self.filter.and(self.key.id == self.source.id)
+        let filter = self.filter.and(self.key == self.source.id)
         
         return OrderedSet(manager.find(where: filter))
     }()
     
-    let key: Key<E>
-    let filter: Filter
+    let key: Key<E,ID>
+    let filter: Filter<E>
     
-    public init<S: Sequence>(source: T, key: Key<E>, filter: Filter = .all([]), entities: S? = nil) where S.Element == E {
+    public init<S: Sequence>(source: T, key: Key<E,ID>, filter: Filter<E> = .all([]), entities: S? = nil) where S.Element == E {
         self.key    = key
         self.source = source
         self.filter = filter
@@ -24,7 +24,7 @@ public final class HasMany<T: Entity, E: Entity> {
         }
     }
     
-    public func filter(where filter: Filter) -> HasMany<T,E> {
+    public func filter(where filter: Filter<E>) -> HasMany<T,E> {
         return HasMany(source: source, key: key, filter: self.filter.and(filter), entities: [E]?.none)
     }
 }
@@ -134,7 +134,8 @@ extension HasMany {
     
     func setForeignKey(on entity: E) {
         var entity = entity
-        try! ReflectionExtensions.set(source, key: "\(key).storage", for: &entity)
+        let key = self.key.stringValue.replacingOccurrences(of: "id", with: "storage")
+        try! ReflectionExtensions.set(source, key: key, for: &entity)
     }
     
     public func remove(_ member: E) {
@@ -149,4 +150,5 @@ extension HasMany {
 public protocol EntityCollection {}
 
 extension HasMany: EntityCollection {}
+
 

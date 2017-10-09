@@ -4,7 +4,7 @@ import Node
 import ReflectionExtensions
 
 class Printer: Connection {
-    func execute(query: Query) throws -> Data? {
+    func execute<E>(query: Query<E>) throws -> Data? {
         print("\n", query, "\n")
         
         return nil
@@ -17,13 +17,18 @@ class EntityMapTests: XCTestCase {
     func test_entities_are_correctly_registered_in_the_manager() {
         let manager = Manager(connection: Printer(), entities: [User.self, Post.self])
         
-        let address = Address(street: "Orchideeveld", number: 6)
+        let address: Address = Address(street: "Orchideeveld", number: 6)
         
-        let _: Post? = manager.find(where:
-            //Post.title == "First" &&
-            //Post.user.address == address &&
-            User.posts.filter(Post.title == "Lala").count > 3
-        )
+        let q = Query<User>(action: .fetch)
+            .filter(
+                User.name == "First" &&
+                User.address != address ||
+                User.address.street !~ *"Test" ||
+                User.posts.filter(Post.title == "Lala").count > 3
+            )
+            .order(by: User.age)
+        
+        print("\n", q.filter, "\n")
         
         let user1 = User(id: 123, name: "Test")
         

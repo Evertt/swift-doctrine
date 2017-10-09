@@ -1,10 +1,18 @@
-public protocol TypedCodingKey: CodingKey {
-    associatedtype Wrapped
-    
+public protocol SomeCodingKey: CodingKey, Hashable {
     init(_ stringValue: String)
 }
 
-public extension TypedCodingKey {
+public protocol TypedCodingKey: SomeCodingKey {
+    associatedtype Wrapped
+}
+
+public protocol EntityTypedCodingKey: SomeCodingKey {
+    associatedtype Start
+}
+
+public protocol DoublyTypedCodingKey: TypedCodingKey, EntityTypedCodingKey {}
+
+public extension SomeCodingKey {
     var intValue: Int? {
         return nil
     }
@@ -16,10 +24,20 @@ public extension TypedCodingKey {
     init?(intValue: Int) {
         return nil
     }
+    
+    var hashValue: Int {
+        return stringValue.hashValue
+    }
+    
+    static func ==(lhs: Self, rhs: Self) -> Bool {
+        return lhs.stringValue == rhs.stringValue
+    }
 }
 
-public struct Key<V>: TypedCodingKey {
+public struct Key<E,V>: DoublyTypedCodingKey {
+    public typealias Start   = E
     public typealias Wrapped = V
+    
     public let stringValue: String
     
     public init(_ stringValue: String) {
@@ -27,24 +45,26 @@ public struct Key<V>: TypedCodingKey {
     }
 }
 
-public struct RelationKey<V>: TypedCodingKey {
+public struct RelationKey<E: Entity,V: Entity>: DoublyTypedCodingKey {
+    public typealias Start   = E
     public typealias Wrapped = V
+    
     public let stringValue: String
-    public let filter: Filter
-    public let count: Key<Int>
+    public let filter: Filter<V>
+    public let count: Key<E,Int>
     
     public init(_ stringValue: String) {
-        self = RelationKey<V>(stringValue, filter: nil)
+        self = RelationKey<E,V>(stringValue, filter: nil)
     }
     
-    public init(_ stringValue: String, filter: Filter?) {
+    public init(_ stringValue: String, filter: Filter<V>?) {
         self.stringValue = stringValue
         self.filter      = filter ?? .all([])
-        self.count       = Key<Int>("COUNT(\(stringValue))")
+        self.count       = Key<E,Int>("COUNT(\(stringValue))")
     }
     
-    public func filter(_ filter: Filter) -> RelationKey<V> {
-        return RelationKey<V>(stringValue, filter: self.filter.and(filter))
+    public func filter(_ filter: Filter<V>) -> RelationKey<E,V> {
+        return RelationKey<E,V>(stringValue, filter: self.filter.and(filter))
     }
 }
 
