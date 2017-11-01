@@ -7,7 +7,7 @@ struct Address: Codable {
 
 extension Address: Equatable {
     static func ==(lhs: Address, rhs: Address) -> Bool {
-        return lhs.street == rhs.street && lhs.number == rhs.number
+        return (lhs.street, lhs.number) == (rhs.street, rhs.number)
     }
 }
 
@@ -44,51 +44,52 @@ final class Post: Entity {
 
 extension Key where V == User {
     var id: Key<E,ID> {
-        return Key<E,ID>("\(stringValue).id")
+        return "\(stringValue).id"
     }
 
     var age: Key<E,Int> {
-        return Key<E,Int>("\(stringValue).age")
+        return "\(stringValue).age"
     }
 
     var name: Key<E,String> {
-        return Key<E,String>("\(stringValue).name")
+        return "\(stringValue).name"
     }
 
     var address: Key<E,Address> {
-        return Key<E,Address>("\(stringValue).address")
+        return "\(stringValue).address"
     }
     
     var posts: RelationKey<User,Post> {
-        return RelationKey<User,Post>("\(stringValue).posts")
+        return "\(stringValue).posts"
     }
 }
 
 extension Key where V == Address? {
     var street: Key<E,String> {
-        return Key<E,String>("\(stringValue).street")
+        return "\(stringValue).street"
     }
     
     var number: Key<E,Int> {
-        return Key<E,Int>("\(stringValue).number")
+        return "\(stringValue).number"
     }
 }
 
 extension Address {
-    static let street = Key<Address,String>("street")
-    static let number = Key<Address,Int>("number")
+    static let street : Key<Address,String> = "street"
+    static let number : Key<Address,Int>    = "number"
 }
 
 extension User {
-    static let id      = Key<User,ID>("id")
-    static let age     = Key<User,Int>("age")
-    static let name    = Key<User,String>("name")
-    static let address = Key<User,Address?>("address")
-    static let posts   = RelationKey<User,Post>("posts")
+    static let id      : Key<User,ID>           = "id"
+    static let age     : Key<User,Int>          = "age"
+    static let name    : Key<User,String>       = "name"
+    static let address : Key<User,Address?>     = "address"
+    
+    static let posts   : RelationKey<User,Post> = "post"
 }
 
 extension Post {
-    static let id    = Key<Post,ID>("id")
-    static let title = Key<Post,String>("title")
-    static let user  = Key<Post,User>("user")
+    static let id    : Key<Post,ID>     = "id"
+    static let title : Key<Post,String> = "title"
+    static let user  : Key<Post,User>   = "user"
 }

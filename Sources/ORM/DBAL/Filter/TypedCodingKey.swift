@@ -1,4 +1,4 @@
-public protocol SomeCodingKey: CodingKey, Hashable {
+public protocol SomeCodingKey: CodingKey, Hashable, ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
     init(_ stringValue: String)
 }
 
@@ -19,6 +19,18 @@ public extension SomeCodingKey {
     
     init?(stringValue: String) {
         self.init(stringValue)
+    }
+    
+    init(stringLiteral value: String) {
+        self.init(value)
+    }
+    
+    public init(stringInterpolation strings: Self...) {
+        self.init(strings.reduce("") {$0 + $1.stringValue})
+    }
+    
+    public init<T>(stringInterpolationSegment expr: T) {
+        self.init("\(expr)")
     }
     
     init?(intValue: Int) {
