@@ -20,13 +20,13 @@ class EntityMapTests: XCTestCase {
         let address: Address = Address(street: "Orchideeveld", number: 6)
         
         let q = Query<User>(action: .fetch)
-            .filter(
-                User.name == "First" &&
-                User.address != address ||
-                User.address.street !~ *"Test" ||
-                User.posts.filter(Post.title == "Lala").count > 3
+            .filter(.name == "First"
+                 && .age >= 18
+                 || .address != address
+                 || Key<User,Address?>.address.number == 6
+//                 || Key<User,Int>.posts.filter(.title == "Lala").count > 3
             )
-            .order(by: User.age)
+            .order(by: .age)
         
         print("\n", q.filter, "\n")
         

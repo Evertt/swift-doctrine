@@ -1,95 +1,95 @@
 infix operator =~ : ComparisonPrecedence
 infix operator !~ : ComparisonPrecedence
 
-public func ==<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T) -> Filter<K.Start> where K.Wrapped == T, T: Equatable {
+public func ==<E, T: Encodable>(left: Key<E,T>, right: T) -> Filter<E> where T: Equatable {
     return .where(left, equalTo: right)
 }
 
-public func ==<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T?) -> Filter<K.Start> where K.Wrapped == T?, T: Equatable {
+public func ==<E, T: Encodable>(left: Key<E,T?>, right: T?) -> Filter<E> where T: Equatable {
     return .where(left, equalTo: right)
 }
 
-public func !=<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T) -> Filter<K.Start> where K.Wrapped == T, T: Equatable {
+public func !=<E, T: Encodable>(left: Key<E,T>, right: T) -> Filter<E> where T: Equatable {
     return .where(left, notEqualTo: right)
 }
 
-public func !=<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T?) -> Filter<K.Start> where K.Wrapped == T?, T: Equatable {
+public func !=<E, T: Encodable>(left: Key<E,T?>, right: T?) -> Filter<E> where T: Equatable {
     return .where(left, notEqualTo: right)
 }
 
-public func >=<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T) -> Filter<K.Start> where K.Wrapped == T, T: Comparable {
+public func >=<E, T: Encodable>(left: Key<E,T>, right: T) -> Filter<E> where T: Comparable {
     return .where(left, is: .greaterThanOrEqualTo, right)
 }
 
-public func <=<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T) -> Filter<K.Start> where K.Wrapped == T, T: Comparable {
+public func <=<E, T: Encodable>(left: Key<E,T>, right: T) -> Filter<E> where T: Comparable {
     return .where(left, is: .lessThanOrEqualTo, right)
 }
 
-public func ><K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T) -> Filter<K.Start> where K.Wrapped == T, T: Comparable {
+public func ><E, T: Encodable>(left: Key<E,T>, right: T) -> Filter<E> where T: Comparable {
     return .where(left, is: .greaterThan, right)
 }
 
-public func <<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: T) -> Filter<K.Start> where K.Wrapped == T, T: Comparable {
+public func <<E, T: Encodable>(left: Key<E,T>, right: T) -> Filter<E> where T: Comparable {
     return .where(left, is: .lessThan, right)
 }
 
-public func =~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: [T]) -> Filter<K.Start> where K.Wrapped == T {
+public func =~<E, T: Encodable>(left: Key<E,T>, right: [T]) -> Filter<E> {
     return .subset(left, in: right)
 }
 
-public func !~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: [T]) -> Filter<K.Start> where K.Wrapped == T {
+public func !~<E, T: Encodable>(left: Key<E,T>, right: [T]) -> Filter<E> {
     return !(left =~ right)
 }
 
-public func =~<K: DoublyTypedCodingKey>(left: K, right: Filter<K.Start>.Match) -> Filter<K.Start> where K.Wrapped == String {
+public func =~<E>(left: Key<E,String>, right: Filter<E>.Match) -> Filter<E> {
     return .match(left, right)
 }
 
-public func !~<K: DoublyTypedCodingKey>(left: K, right: Filter<K.Start>.Match) -> Filter<K.Start> where K.Wrapped == String {
+public func !~<E>(left: Key<E,String>, right: Filter<E>.Match) -> Filter<E> {
     return !(left =~ right)
 }
 
-public func =~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: CountableRange<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func =~<E, T: Encodable>(left: Key<E,T>, right: CountableRange<T>) -> Filter<E> {
     let lowerBound = right.lowerBound
     let upperBound = right.upperBound
     
     return left >= lowerBound && left < upperBound
 }
 
-public func !~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: CountableRange<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func !~<E, T: Encodable>(left: Key<E,T>, right: CountableRange<T>) -> Filter<E> {
     return !(left =~ right)
 }
 
-public func =~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: Range<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func =~<E, T: Encodable>(left: Key<E,T>, right: Range<T>) -> Filter<E> {
     let lowerBound = right.lowerBound
     let upperBound = right.upperBound
     
     return left >= lowerBound && left < upperBound
 }
 
-public func !~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: Range<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func !~<E, T: Encodable>(left: Key<E,T>, right: Range<T>) -> Filter<E> {
     return !(left =~ right)
 }
 
-public func =~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: CountableClosedRange<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func =~<E, T: Encodable>(left: Key<E,T>, right: CountableClosedRange<T>) -> Filter<E> {
     let lowerBound = right.lowerBound
     let upperBound = right.upperBound
     
     return left >= lowerBound && left <= upperBound
 }
 
-public func !~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: CountableClosedRange<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func !~<E, T: Encodable>(left: Key<E,T>, right: CountableClosedRange<T>) -> Filter<E> {
     return !(left =~ right)
 }
 
-public func =~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: ClosedRange<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func =~<E, T: Encodable>(left: Key<E,T>, right: ClosedRange<T>) -> Filter<E> {
     let lowerBound = right.lowerBound
     let upperBound = right.upperBound
     
     return left >= lowerBound && left <= upperBound
 }
 
-public func !~<K: DoublyTypedCodingKey, T: Encodable>(left: K, right: ClosedRange<T>) -> Filter<K.Start> where K.Wrapped == T {
+public func !~<E, T: Encodable>(left: Key<E,T>, right: ClosedRange<T>) -> Filter<E> {
     return !(left =~ right)
 }
 

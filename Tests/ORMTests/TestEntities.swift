@@ -58,7 +58,7 @@ extension Key where V == User {
     var address: Key<E,Address> {
         return "\(stringValue).address"
     }
-    
+
     var posts: RelationKey<User,Post> {
         return "\(stringValue).posts"
     }
@@ -68,28 +68,57 @@ extension Key where V == Address? {
     var street: Key<E,String> {
         return "\(stringValue).street"
     }
-    
+
     var number: Key<E,Int> {
         return "\(stringValue).number"
     }
 }
 
-extension Address {
-    static let street : Key<Address,String> = "street"
-    static let number : Key<Address,Int>    = "number"
-}
+//extension Address {
+//    static let street : Key<Address,String> = "street"
+//    static let number : Key<Address,Int>    = "number"
+//}
+//
+//extension User {
+//    static let id      : Key<User,ID>           = "id"
+//    static let age     : Key<User,Int>          = "age"
+//    static let name    : Key<User,String>       = "name"
+//    static let address : Key<User,Address?>     = "address"
+//
+//    static let posts   : RelationKey<User,Post> = "post"
+//}
+//
+//extension Post {
+//    static let id    : Key<Post,ID>     = "id"
+//    static let title : Key<Post,String> = "title"
+//    static let user  : Key<Post,User>   = "user"
+//}
 
 extension User {
     static let id      : Key<User,ID>           = "id"
-    static let age     : Key<User,Int>          = "age"
-    static let name    : Key<User,String>       = "name"
-    static let address : Key<User,Address?>     = "address"
-    
-    static let posts   : RelationKey<User,Post> = "post"
 }
 
 extension Post {
     static let id    : Key<Post,ID>     = "id"
-    static let title : Key<Post,String> = "title"
-    static let user  : Key<Post,User>   = "user"
+}
+
+extension Key where E == User, V == Int {
+    static let age: Key<User,Int> = "age"
+    static let posts: RelationKey<User,Post> = "posts"
+}
+
+extension Key where E == User, V == ID {
+    static let id: Key<User,ID> = "id"
+}
+
+extension Key where E == User, V == String {
+    static let name: Key<User,String> = "name"
+}
+
+extension Key where E == Post, V == String {
+    static let title: Key<Post,String> = "title"
+}
+
+extension Key where E == User, V == Address? {
+    static let address: Key<User,Address?> = "address"
 }
