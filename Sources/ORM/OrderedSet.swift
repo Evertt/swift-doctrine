@@ -144,8 +144,8 @@ public struct OrderedSet<T: Hashable> {
     public mutating func remove(_ object: T) {
         if let index = contents[object] {
             contents[object] = nil
-            sequencedContents[index].deinitialize()
-            sequencedContents[index].deallocate(capacity: 1)
+            sequencedContents[index].deinitialize(count: 1)
+            sequencedContents[index].deallocate()
             sequencedContents.remove(at: index)
             
             for (object, i) in contents {
@@ -189,8 +189,8 @@ public struct OrderedSet<T: Hashable> {
         contents.removeAll()
         
         for sequencedContent in sequencedContents {
-            sequencedContent.deinitialize()
-            sequencedContent.deallocate(capacity: 1)
+            sequencedContent.deinitialize(count: 1)
+            sequencedContent.deallocate()
         }
         
         sequencedContents.removeAll()
@@ -417,8 +417,8 @@ extension OrderedSet {
             if contents.count == previousCount {
                 sequencedContents[index].pointee = newValue
             } else {
-                sequencedContents[index].deinitialize()
-                sequencedContents[index].deallocate(capacity: 1)
+                sequencedContents[index].deinitialize(count: 1)
+                sequencedContents[index].deallocate()
                 sequencedContents.remove(at: index)
             }
         }

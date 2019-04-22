@@ -31,7 +31,7 @@ public class Manager {
     }
     
     public func find<E: Entity>(id: ID) -> E? {
-        return fetch(E.self, E.id == id).map { decode($0) }
+        return fetch(E.self, .where(E.id, equalTo: id)).map { decode($0) }
     }
     
     private func fetch<E>(_ type: E.Type, _ filter: Filter<E>) -> Data? {

@@ -1,11 +1,11 @@
 let users: [User] = manager
     .where(
-        User.name == "Evert" &&
-        User.address.street == "Orchideeveld" ||
-        User.posts.where(Post.title == "Poep").count > 0
+        \.name == "Evert" &&
+        \.address.street == "Orchideeveld" ||
+        \.posts.where(\.title == "Poep").count > 0
     )
-    .order(by: User.age, direction: .ascending)
-    .include(User.father, User.posts)
+    .order(by: \.age, direction: .ascending)
+    .include(\.father, \.posts)
     .get()
 
 for user in users {

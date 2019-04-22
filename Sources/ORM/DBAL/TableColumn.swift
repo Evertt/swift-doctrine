@@ -35,7 +35,7 @@ extension TableColumn: ExpressibleByStringLiteral {
 extension TableColumn: CustomStringConvertible {
     public var description: String {
         return "`" + [table, column]
-            .flatMap{$0}
+            .compactMap{$0}
             .joined(separator: "`.`") + "`"
     }
 }

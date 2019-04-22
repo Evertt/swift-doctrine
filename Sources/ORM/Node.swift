@@ -5,7 +5,7 @@
  Please ignore everything in this file.
  This is just me drafting out some random idea.
  Which has almost nothing to do with this library.
-*/
+
  
 
 protocol ReducableToUsers: Codable {
@@ -141,3 +141,5 @@ extension Ability {
         return Key<Ability<E>, ID>("id")
     }
 }
+
+ */

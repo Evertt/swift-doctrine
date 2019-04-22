@@ -46,7 +46,7 @@ extension Entity {
     public func belongsTo<E: Entity>(_ entityType: E.Type, mappedBy key: String? = nil) -> E? {
         let key = key ?? entityType.type.lowercasingFirstLetter()
         
-        let _foreignKey: Int? = originalRow?[key].map {_ in fatalError()}
+        let _foreignKey: UInt? = originalRow?[key].map {_ in fatalError()}
         
         guard let foreignKey = _foreignKey else {
             return nil
@@ -68,8 +68,8 @@ extension Entity {
 
 extension String {
     func lowercasingFirstLetter() -> String {
-        let first = String(characters.prefix(1)).lowercased()
-        let other = String(characters.dropFirst())
+        let first = prefix(1).lowercased()
+        let other = dropFirst()
         return first + other
     }
     

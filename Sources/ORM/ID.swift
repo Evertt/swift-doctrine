@@ -6,7 +6,7 @@ extension IID: NodeConvertible {
     }
     
     public init(node: Node) throws {
-        guard let int = node.int else {
+        guard let int = node.uint else {
             fatalError("\(#file) -> \(#function) at line \(#line)")
         }
         

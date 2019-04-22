@@ -1,4 +1,4 @@
-public protocol SomeCodingKey: CodingKey, Hashable, ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
+public protocol SomeCodingKey: CodingKey, Hashable, ExpressibleByStringInterpolation {
     init(_ stringValue: String)
 }
 
@@ -25,11 +25,11 @@ public extension SomeCodingKey {
         self.init(value)
     }
     
-    public init(stringInterpolation strings: Self...) {
+    init(stringInterpolation strings: Self...) {
         self.init(strings.reduce("") {$0 + $1.stringValue})
     }
     
-    public init<T>(stringInterpolationSegment expr: T) {
+    init<T>(stringInterpolationSegment expr: T) {
         self.init("\(expr)")
     }
     
@@ -37,8 +37,8 @@ public extension SomeCodingKey {
         return nil
     }
     
-    var hashValue: Int {
-        return stringValue.hashValue
+    func hash(into hasher: inout Hasher) {
+        return stringValue.hash(into: &hasher)
     }
     
     static func ==(lhs: Self, rhs: Self) -> Bool {

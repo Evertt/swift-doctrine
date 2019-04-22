@@ -9,8 +9,8 @@ let package = Package(
         .library(name: "ORM", targets: ["ORM"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/node.git", .revision("swift-4")),
-        .package(url: "https://github.com/Evertt/swift-id.git", .revision("4.0")),
+        .package(url: "https://github.com/vapor/node.git", from: "2.1.5"),
+        .package(url: "https://github.com/Evertt/swift-id.git", from: "0.2.0"),
         .package(url: "https://github.com/Evertt/Reflection-Extensions.git", .revision("4.0")),
     ],
     targets: [

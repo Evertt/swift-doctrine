@@ -1,16 +1,20 @@
 struct EntityHash: Hashable {
-    let hashValue: Int
+    let base: Any.Type
     
     init<E: _Entity>(_ object: E) {
-        hashValue = "\(type(of: object))".hashValue
+        base = E.self
     }
     
     init<E: _Entity>(_ type: E.Type) {
-        hashValue = "\(type)".hashValue
+        base = E.self
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        return ObjectIdentifier(base).hash(into: &hasher)
     }
     
     static func ==(lhs: EntityHash, rhs: EntityHash) -> Bool {
-        return lhs.hashValue == rhs.hashValue
+        return lhs.base == rhs.base
     }
 }
 
@@ -24,12 +28,12 @@ extension _Entity {
     }
 }
 
-extension Entity {
-    public var hashValue: Int {
-        return hash.hashValue
+public extension Entity {
+    func hash(into hasher: inout Hasher) {
+        return hash.hash(into: &hasher)
     }
     
-    public static func ==(lhs: Self, rhs: Self) -> Bool {
+    static func ==(lhs: Self, rhs: Self) -> Bool {
         return lhs.hash == rhs.hash
     }
 }
